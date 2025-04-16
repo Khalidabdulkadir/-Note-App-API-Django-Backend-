@@ -9,12 +9,23 @@ class NoteSerialisers(serializers.ModelSerializer):
 # Manual Way 
 class NotesManualSerialisers(serializers.Serializer):
     title = serializers.CharField(max_length=100)
-    content = serializers.CharField()
+    content = serializers.CharField(allow_blank =True)
 
     def create(self, validated_data):
-        validated_data['title'] = validated_data['title'].upper()
-        
-        return Notes.objects.create(**validated_data)
+        validated_data['title'] = validated_data['title'].lower()
+
+        if "urgent" in validated_data['title']:
+            validated_data["title"] += (" important")
+        else:
+            print("it doesnt contain")
+
+
+        if validated_data['content'] == "":
+            validated_data['content'] = "No content provided."
+
+        notes = Notes.objects.create(**validated_data)
+        print("Note Created :", notes)
+        return notes
     
 
     def update(self, instance, validated_data):
