@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Notes
+from .models import Notes, Category
 
 class NoteSerialisers(serializers.ModelSerializer):
     class Meta:
@@ -32,5 +32,21 @@ class NotesManualSerialisers(serializers.Serializer):
     # Update the existing instance (the Note object)
         instance.title = validated_data.get('title', instance.title)
         instance.content = validated_data.get('content', instance.content)
+        instance.save()
+        return instance
+
+# category Serillisers Manual
+class Categoryserialisers(serializers.Serializer):
+    name = serializers.CharField(max_length = 120)
+    describtion = serializers.CharField(allow_blank =True)
+
+    def create(self, validated_data):
+        print(f"Creating with: {validated_data}")
+        return Category.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        print(f"Updating {instance} with: {validated_data}")
+        instance.name = validated_data.get('name', instance.name)
+        instance.describtion = validated_data.get('description', instance.description)
         instance.save()
         return instance
