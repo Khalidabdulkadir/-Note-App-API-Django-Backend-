@@ -35,6 +35,7 @@ class NotesManualSerialisers(serializers.Serializer):
         instance.save()
         return instance
 
+
 # category Serillisers Manual
 class Categoryserialisers(serializers.Serializer):
     name = serializers.CharField(max_length = 120)
@@ -47,6 +48,11 @@ class Categoryserialisers(serializers.Serializer):
     def update(self, instance, validated_data):
         print(f"Updating {instance} with: {validated_data}")
         instance.name = validated_data.get('name', instance.name)
-        instance.describtion = validated_data.get('description', instance.description)
+        instance.describtion = validated_data.get('describtion', instance.describtion)
         instance.save()
         return instance
+    
+# class Categoryserialisers(serializers.ModelSerializer):
+#     class Meta:
+#         model = Category
+#         fields = "__all__"

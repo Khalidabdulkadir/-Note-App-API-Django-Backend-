@@ -55,21 +55,18 @@ def note_detail_view(request, pk):
     
     elif request.method == "DELETE":
         note.delete()
-        return JsonResponse({"message": "Note deleted Successfully"}, status = 204)
-    
-
+        return JsonResponse({"message": "Note deleted Successfully"}, status = 204)   
 
 # viewsets  Manual viewsets
 @csrf_exempt
 def get_category_viewsets(request):
+
     if request.method == "GET":
-        category = Category.objects.all()
+        category = Category.objects.all().order_by("-id")
         serialiser = Categoryserialisers(category, many=True)
-        print(f"The category Object are :{category}")
-        print(f"The cateSerialised data are :{serialiser.data}")
         return JsonResponse(serialiser.data, safe=False)
     
-    if request.method == "POST":
+    elif request.method == "POST":
         data = json.loads(request.body)
         serializers = Categoryserialisers(data=data)
 
@@ -77,5 +74,45 @@ def get_category_viewsets(request):
             serializers.save()
             return JsonResponse(serializers.data, status=201)
         return JsonResponse(serializers.errors, status=400)
+    
+    # Put method
+    elif request.method == "PUT":
+        data = json.loads(request.body)
+        try:
+            category_id = data.get("id")
+            print(F"Categry Id is :{category_id}")
+            category_instance = Category.objects.get(id=category_id)
+
+            serialiser = Categoryserialisers(instance=category_instance, data=data)
+            if serialiser.is_valid():
+                serialiser.save()
+                return JsonResponse(serialiser.data, status=200)
+            return JsonResponse(serialiser.errors, status=400)
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Category not found.'}, status=404)
+        
+    elif request.method == "PATCH":
+        data = json.loads(request.body)
+        try:
+            cat_id = data.get("id")
+            category_instance = Category.objects.get(id=cat_id)
+            serialiser = Categoryserialisers(instance = category_instance, data=data, partial=True)
+            if serialiser.is_valid():
+                serialiser.save()
+                return JsonResponse(serialiser.data, status=200)
+            return JsonResponse(serialiser.errors, status=400)
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Category not found.'}, status=404)
+    
+    elif request.method == "DELETE":
+        data = json.loads(request.body)
+        try:
+            category_id = data.get("id")
+            category_instance = Category.objects.get(id=category_id)
+            category_instance.delete()
+            return JsonResponse({"message": "Category deleted successfully"}, status=204)
+
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Category not found.'}, status=404)
     else:
-        return JsonResponse({'error': 'Only GET method is allowed.'}, status=405)
+        return JsonResponse({'error': 'method is allowed.'}, status=405)
